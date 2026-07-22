@@ -31,6 +31,32 @@ yesno(){ local q="$1" d="${2:-y}" a
   printf "%s ${DIM}[%s]${R} " "$q" "$( [ "$d" = y ] && echo 'Y/n' || echo 'y/N')"
   read -r a; a="${a:-$d}"; case "$a" in [Yy]*) return 0;; *) return 1;; esac; }
 
+# Arrow-key picker. Caller fills MENU_KEYS + MENU_LABELS; result in REPLY_KEY.
+# ↑/↓ move, Enter selects, or press a hotkey directly. Falls back to a typed
+# line when stdin isn't a tty (so piping / --all still work).
+menu_pick(){
+  REPLY_KEY=""; local n=${#MENU_KEYS[@]}
+  if ! [ -t 0 ]; then IFS= read -r REPLY_KEY; return; fi
+  local sel=0 k rest i
+  printf '\033[?25l'
+  while true; do
+    for i in $(seq 0 $((n-1))); do
+      if [ "$i" -eq "$sel" ]; then printf "  ${CYN}${B}❯ %s) %s${R}\033[K\n" "${MENU_KEYS[$i]}" "${MENU_LABELS[$i]}"
+      else printf "    ${DIM}%s)${R} %s\033[K\n" "${MENU_KEYS[$i]}" "${MENU_LABELS[$i]}"; fi
+    done
+    IFS= read -rsn1 k
+    if [ -z "$k" ]; then REPLY_KEY="${MENU_KEYS[$sel]}"; break; fi
+    if [ "$k" = $'\e' ]; then read -rsn2 -t 1 rest
+      case "$rest" in "[A") sel=$(((sel-1+n)%n));; "[B") sel=$(((sel+1)%n));; esac
+    else
+      for i in $(seq 0 $((n-1))); do [ "${MENU_KEYS[$i]}" = "$k" ] && { REPLY_KEY="$k"; break; }; done
+      [ -n "$REPLY_KEY" ] && break
+    fi
+    printf '\033[%dA' "$n"
+  done
+  printf '\033[?25h'
+}
+
 # ── i18n (locale files in locales/*.sh — drop one in to add a language) ──────
 available_langs(){ local f; for f in "$LOCALES_DIR"/*.sh; do [ -f "$f" ] || continue; basename "$f" .sh; done; }
 lang_name(){ ( # shellcheck source=/dev/null
@@ -45,12 +71,15 @@ default_lang(){
   if [ -n "${PLUGHIVE_LANG:-}" ] && [ -f "$LOCALES_DIR/$PLUGHIVE_LANG.sh" ]; then echo "$PLUGHIVE_LANG"; return; fi
   case "${LANG:-}" in th*|TH*) [ -f "$LOCALES_DIR/th.sh" ] && echo th || echo en;; *) echo en;; esac; }
 choose_lang(){
-  banner; step "$M_step_lang"
-  local n=1 map="" c
-  for c in $(available_langs); do printf "    %d) %s ${DIM}(%s)${R}\n" "$n" "$(lang_name "$c")" "$c"; map="$map $n:$c"; n=$((n+1)); done
-  local pick; pick="$(ask "  $M_choose")"
-  for kv in $map; do [ "${kv%%:*}" = "$pick" ] && { load_lang "${kv#*:}"; return; }; done
-  warn "$M_unknown"; sleep 1; }
+  banner; step "$M_step_lang"; echo
+  local codes=() c i
+  for c in $(available_langs); do codes+=("$c"); done
+  MENU_KEYS=(); MENU_LABELS=()
+  for i in $(seq 1 ${#codes[@]}); do MENU_KEYS+=("$i"); MENU_LABELS+=("$(lang_name "${codes[$((i-1))]}") (${codes[$((i-1))]})"); done
+  menu_pick
+  case "$REPLY_KEY" in ''|*[!0-9]*) return;; esac
+  local idx=$((REPLY_KEY-1))
+  [ -n "${codes[$idx]:-}" ] && load_lang "${codes[$idx]}"; }
 
 # ── OS / arch ───────────────────────────────────────────────────────────────
 OS=unknown; PKG=""
@@ -245,20 +274,12 @@ show_help(){ banner; printf "%s\n" "$M_help_text"; pause; }
 menu(){
   while true; do
     banner
-    printf "\n  ${B}%s${R}\n" "$M_menu_header"
-    printf "    ${GRN}1)${R} ${B}%s${R}\n" "$M_m_full"
-    printf "    2) %s\n" "$M_m_prereq"
-    printf "    3) %s\n" "$M_m_tools"
-    printf "    4) %s\n" "$M_m_login"
-    printf "    5) %s\n" "$M_m_deps"
-    printf "    6) %s\n" "$M_m_env"
-    printf "    7) %s\n" "$M_m_google"
-    printf "    8) %s\n" "$M_m_verify"
-    printf "    ${CYN}9)${R} ${B}%s${R}\n" "$M_m_run"
-    printf "    l) %s\n" "$M_m_lang"
-    printf "    h) %s\n" "$M_m_help"
-    printf "    0) %s\n" "$M_m_exit"
-    case "$(ask "  $M_choose")" in
+    printf "\n  ${B}%s${R}  ${DIM}(↑/↓ + Enter · or press a key)${R}\n\n" "$M_menu_header"
+    MENU_KEYS=(1 2 3 4 5 6 7 8 9 l h 0)
+    MENU_LABELS=("$M_m_full" "$M_m_prereq" "$M_m_tools" "$M_m_login" "$M_m_deps" "$M_m_env" \
+                 "$M_m_google" "$M_m_verify" "$M_m_run" "$M_m_lang" "$M_m_help" "$M_m_exit")
+    menu_pick
+    case "$REPLY_KEY" in
       1) full_setup;; 2) banner; check_prereqs; pause;; 3) banner; install_tools; pause;;
       4) banner; claude_login; pause;; 5) banner; install_deps; pause;; 6) banner; configure_env; pause;;
       7) banner; google_mcp; pause;; 8) banner; verify; pause;; 9) run_bot;;
