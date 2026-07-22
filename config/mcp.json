@@ -1,0 +1,4 @@
+{
+  "//": "Mail/Calendar are provided by remote HTTP MCP connectors registered in your `claude` CLI itself (zero local infra), NOT by a server launched from here. So this file is intentionally empty — the brain inherits your CLI's user-scope MCP servers automatically. Set them up once (see README §Gmail/Calendar): `claude mcp add --transport http --scope user gmail https://gmailmcp.googleapis.com/mcp/v1` then `claude mcp login gmail` (and the same for `gcal`). To instead pin a local/self-hosted MCP server for a fork, add it under mcpServers here and it will be passed to the brain via --mcp-config.",
+  "mcpServers": {}
+}
