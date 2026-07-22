@@ -42,7 +42,7 @@ def _build_context(settings: Settings) -> tuple[PlugContext, StateStore, BotMana
     bot = BotManager()
     # Pre-create the primary client so plugs can attach handlers in setup(),
     # before start_all() connects it.
-    bot.create_bot("rochana")
+    bot.create_bot(settings.bot_name)
     scheduler = create_scheduler(settings.timezone)
     state = StateStore(settings.state_db_path)
     ctx = PlugContext(
@@ -100,7 +100,7 @@ async def run() -> None:
 
     logger.info("[app] ROCHANA is up. Starting Discord…")
     bot_task = asyncio.create_task(
-        bot.start_all({"rochana": settings.discord_token})
+        bot.start_all({settings.bot_name: settings.discord_token})
     )
 
     await stop_event.wait()

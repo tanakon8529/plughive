@@ -19,6 +19,16 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def _deep_merge(base: dict, over: dict) -> dict:
+    """Recursively merge `over` into `base` (override wins; nested dicts merged)."""
+    for k, v in over.items():
+        if isinstance(v, dict) and isinstance(base.get(k), dict):
+            base[k] = _deep_merge(base[k], v)
+        else:
+            base[k] = v
+    return base
+
+
 @dataclass
 class BrainCfg:
     chat_model: str = "claude-sonnet-4-5"
@@ -49,6 +59,7 @@ class BriefCfg:
 class Settings:
     root: Path
     timezone: str
+    bot_name: str          # internal bot identity / handle (user-editable)
     boss_nickname: str
     persona_file: str
     enabled_plugs: list[str]
@@ -79,8 +90,13 @@ def load_settings() -> Settings:
     load_dotenv(root / ".env")
 
     cfg_path = root / "config" / "plughive.yaml"
-    raw = yaml.safe_load(cfg_path.read_text()) if cfg_path.is_file() else {}
-    raw = raw or {}
+    raw = (yaml.safe_load(cfg_path.read_text()) if cfg_path.is_file() else {}) or {}
+    # Per-user overrides live in config/plughive.local.yaml (gitignored) and
+    # deep-merge over the shared defaults — so personalizing never touches the
+    # committed, generic config.
+    local_path = root / "config" / "plughive.local.yaml"
+    if local_path.is_file():
+        raw = _deep_merge(raw, yaml.safe_load(local_path.read_text()) or {})
 
     brain_raw = raw.get("brain", {}) or {}
     proact_raw = raw.get("proactivity", {}) or {}
@@ -89,8 +105,9 @@ def load_settings() -> Settings:
     settings = Settings(
         root=root,
         timezone=str(raw.get("timezone", "Asia/Bangkok")),
+        bot_name=str(raw.get("bot_name", "assistant")),
         boss_nickname=str(raw.get("boss_nickname", "Boss")),
-        persona_file=str(raw.get("persona_file", "personas/rochana.md")),
+        persona_file=str(raw.get("persona_file", "personas/assistant.md")),
         enabled_plugs=list(raw.get("enabled_plugs", []) or []),
         brain=BrainCfg(
             chat_model=str(brain_raw.get("chat_model", BrainCfg.chat_model)),
@@ -112,21 +129,10 @@ def load_settings() -> Settings:
             cron_minute=int(brief_raw.get("cron_minute", 0)),
             include=list(brief_raw.get("include", ["mail", "calendar", "news"]) or []),
         ),
-        # Generic, framework-level env names. Legacy persona-specific names are
-        # still accepted as fallbacks so existing .env files keep working.
-        discord_token=(
-            os.environ.get("DISCORD_BOT_TOKEN")
-            or os.environ.get("DISCORD_ROCHANA_TOKEN")  # legacy
-            or ""
-        ),
+        discord_token=os.environ.get("DISCORD_BOT_TOKEN", ""),
         # DISCORD_CHANNEL_ID must resolve to a *channel* id; a startup check
         # warns if it's actually a server/guild id.
-        boss_channel_id=int(
-            (os.environ.get("DISCORD_CHANNEL_ID")
-             or os.environ.get("BOSS_DISCORD_CHANNEL_ID")   # legacy
-             or os.environ.get("BOSS_DISCORD_SERVER_ID")    # legacy
-             or "0") or "0"
-        ),
+        boss_channel_id=int(os.environ.get("DISCORD_CHANNEL_ID", "0") or "0"),
     )
     logger.info(
         f"[config] tz={settings.timezone} plugs={settings.enabled_plugs} "

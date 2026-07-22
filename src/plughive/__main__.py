@@ -15,7 +15,7 @@ usage:
   plughive --help     show this help
   plughive --version  print version
 
-config:  config/plughive.yaml   secrets: .env   persona: personas/rochana.md
+config:  config/plughive.yaml (+ plughive.local.yaml)   secrets: .env   personas/*.md
 setup:   ./setup.sh   (or setup.ps1 on Windows)
 """
 

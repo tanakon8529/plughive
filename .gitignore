@@ -1,6 +1,9 @@
 # secrets
 .env
 
+# per-user config overrides (keep the shared config generic)
+config/*.local.yaml
+
 # runtime state & logs
 .runtime/
 *.log

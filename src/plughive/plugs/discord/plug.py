@@ -17,13 +17,13 @@ from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
 from plughive.core.plugin import Plug, PlugContext
-from plughive.plugs.discord_rochana.brief_job import BriefJob
+from plughive.plugs.discord.brief_job import BriefJob
 
 _HISTORY_LEN = 10
-BRIEF_JOB_ID = "discord_rochana_brief"
+BRIEF_JOB_ID = "discord_brief"
 
 
-class DiscordRochanaPlug(Plug):
+class DiscordPlug(Plug):
     async def setup(self, ctx: PlugContext) -> None:
         self._ctx = ctx
         self._tz = ZoneInfo(ctx.settings.timezone)
@@ -34,13 +34,13 @@ class DiscordRochanaPlug(Plug):
         self._locks: dict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
         self._session_cost = 0.0
 
-        client = ctx.bot.bots["rochana"]
+        client = ctx.bot.bots[ctx.settings.bot_name]
         self._client = client
         self._register_chat(client)
         self._register_commands(client)
         self._register_brief(ctx)
         self._register_ready_check(ctx)
-        logger.info("[discord_rochana] setup complete")
+        logger.info("[discord] setup complete")
 
     def _register_ready_check(self, ctx: PlugContext) -> None:
         """On connect, verify the Boss ID resolves to a postable text channel.
@@ -48,23 +48,23 @@ class DiscordRochanaPlug(Plug):
         the user can pick the right one."""
         cid = ctx.settings.boss_channel_id
 
-        @ctx.bot.on_ready("rochana")
+        @ctx.bot.on_ready(ctx.settings.bot_name)
         async def _check(client: discord.Client) -> None:
             ch = client.get_channel(cid)
             if isinstance(ch, discord.TextChannel):
-                logger.info(f"[discord_rochana] ✅ Boss channel = #{ch.name} (guild: {ch.guild.name})")
+                logger.info(f"[discord] ✅ Boss channel = #{ch.name} (guild: {ch.guild.name})")
                 return
             guild = client.get_guild(cid)
             if guild is not None:
                 chans = [f"{c.id}  #{c.name}" for c in guild.text_channels]
                 listing = "\n  ".join(chans) or "(bot can see no text channels)"
                 logger.warning(
-                    f"[discord_rochana] ⚠️ {cid} is a SERVER id, not a channel. "
+                    f"[discord] ⚠️ {cid} is a SERVER id, not a channel. "
                     f"Set DISCORD_CHANNEL_ID to one of these channels in '{guild.name}':\n  {listing}"
                 )
                 return
             logger.warning(
-                f"[discord_rochana] ⚠️ id {cid} resolves to neither a channel nor a "
+                f"[discord] ⚠️ id {cid} resolves to neither a channel nor a "
                 "guild the bot is in. Check the bot is invited and the id is correct."
             )
 
@@ -87,7 +87,7 @@ class DiscordRochanaPlug(Plug):
             async with self._locks[message.channel.id]:
                 async with message.channel.typing():
                     reply = await self._think(message.channel.id, text)
-            await ctx.bot.send_message("rochana", message.channel.id, reply)
+            await ctx.bot.send_message(ctx.settings.bot_name, message.channel.id, reply)
             self._history[message.channel.id].append(f"เก้า: {reply[:300]}")
 
     async def _think(self, channel_id: int, text: str) -> str:
@@ -106,7 +106,7 @@ class DiscordRochanaPlug(Plug):
             timeout_s=s.brain.chat_timeout_s,
         )
         if not result.ok:
-            logger.error(f"[discord_rochana] brain failed: {result.error}")
+            logger.error(f"[discord] brain failed: {result.error}")
             return "ขอโทษค่ะ ตอนนี้เก้าเชื่อมต่อสมอง (claude) ไม่ได้ ลองใหม่อีกครั้งนะคะ"
         if result.cost_usd:
             self._session_cost += result.cost_usd
@@ -123,7 +123,7 @@ class DiscordRochanaPlug(Plug):
             nxt = job.next_run_time.strftime("%H:%M %d/%m") if job and job.next_run_time else "—"
             await interaction.response.send_message(
                 f"🟢 ROCHANA ออนไลน์ค่ะ\n• brief รอบถัดไป: {nxt}\n"
-                f"• plug: discord_rochana", ephemeral=True
+                f"• plug: discord", ephemeral=True
             )
 
         @tree.command(name="cost", description="ค่าใช้จ่าย claude ในเซสชันนี้")
@@ -156,7 +156,7 @@ class DiscordRochanaPlug(Plug):
             misfire_grace_time=300,
             max_instances=1,
         )
-        logger.info(f"[discord_rochana] brief scheduled: hour={b.cron_hours} min={b.cron_minute}")
+        logger.info(f"[discord] brief scheduled: hour={b.cron_hours} min={b.cron_minute}")
 
     async def stop(self) -> None:
-        logger.info("[discord_rochana] stopped")
+        logger.info("[discord] stopped")

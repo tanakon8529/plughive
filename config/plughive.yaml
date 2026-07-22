@@ -1,8 +1,14 @@
-# ROCHANA behaviour config (non-secret — safe to commit).
-# Secrets live in .env. Persona voice lives in personas/rochana.md.
+# plughive behaviour config (non-secret — safe to commit).
+# Secrets live in .env. Persona voice lives in personas/<file>.md.
+#
+# These are the GENERIC defaults. To personalize WITHOUT editing this shared
+# file, create config/plughive.local.yaml (gitignored) — it deep-merges over
+# these values. See config/plughive.local.example.yaml for a worked example
+# (the ROCHANA / เก้า persona).
 
-persona_file: personas/rochana.md
-boss_nickname: "พี่ปิ๊ก"
+bot_name: assistant          # internal bot identity/handle (any string)
+boss_nickname: "Boss"        # how the assistant addresses you
+persona_file: personas/assistant.md
 timezone: Asia/Bangkok
 
 brain:
@@ -16,7 +22,7 @@ brain:
   chat_timeout_s: 120
   brief_timeout_s: 300
   # Tools the brain is allowed to call. WebSearch powers news; the mcp__*
-  # globs match whatever servers you define in config/mcp.json.
+  # globs match the Gmail/Calendar connectors registered in your `claude` CLI.
   allowed_tools:
     - WebSearch
     - "mcp__gmail__*"
@@ -35,4 +41,4 @@ brief:
 
 # Plugs to load. Drop a folder in src/plughive/plugs/<name>/ and list it here.
 enabled_plugs:
-  - discord_rochana
+  - discord

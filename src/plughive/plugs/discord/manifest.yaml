@@ -1,7 +1,7 @@
-name: discord_rochana
+name: discord
 version: 0.1.0
 description: "ROCHANA Discord bot — chat brain via Claude CLI + a 2-hourly mail/calendar/news brief"
-entrypoint: plug.py:DiscordRochanaPlug
+entrypoint: plug.py:DiscordPlug
 provides: [chat, scheduled_brief]
 requires_env: [DISCORD_BOT_TOKEN, DISCORD_CHANNEL_ID]
 # Mail/Calendar come from MCP connectors registered in the `claude` CLI itself

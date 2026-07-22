@@ -108,7 +108,7 @@ class BriefJob:
             logger.info(f"[brief] gate blocked send: {decision.reason}")
             return
 
-        await ctx.bot.send_message("rochana", s.boss_channel_id, text)
+        await ctx.bot.send_message(s.bot_name, s.boss_channel_id, text)
         ctx.state.record_brief(brief_hash, now.isoformat())
         ctx.state.increment_daily(day)
         logger.info(f"[brief] sent ({len(text)} chars, cost={result.cost_usd})")

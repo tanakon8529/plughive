@@ -1,0 +1,17 @@
+# Per-user override — copy to config/plughive.local.yaml (gitignored) and edit.
+# Anything here deep-merges OVER config/plughive.yaml, so you only list what you
+# want to change. Keep the shared config/plughive.yaml generic; put YOUR
+# personality/preferences here.
+#
+# This example turns the generic assistant into "ROCHANA" (เก้า), a polite
+# Thai-speaking persona.
+
+bot_name: ROCHANA
+boss_nickname: "พี่ปิ๊ก"
+persona_file: personas/rochana.md
+
+# You can override anything else too, e.g.:
+# proactivity:
+#   max_daily_boss_messages: 12
+# brief:
+#   cron_hours: "*/2"        # every 2h, 24h
