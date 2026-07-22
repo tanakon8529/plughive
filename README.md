@@ -127,6 +127,8 @@ Change the brief cadence via `brief.cron_hours` (cron hour expression, e.g. `"8-
 
 ## Contributing / forking
 
+Auth follows one rule — **each user connects their own accounts; the repo ships no shared secrets**, and every plug adds its login as a guided `setup.sh` step. See [docs/AUTH.md](docs/AUTH.md) before adding a plug that needs credentials.
+
 This repo ships the [`scrutinize`](.claude/skills/scrutinize/SKILL.md) skill — an outsider-perspective code-review skill. Run `/scrutinize` in Claude Code before opening a PR.
 
 ## Keeping it running (optional)

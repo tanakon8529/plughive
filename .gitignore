@@ -5,6 +5,9 @@
 config/*.local.yaml
 config/*.local.json
 
+# local-only working docs (never pushed)
+HANDOFF.md
+
 # runtime state & logs
 .runtime/
 *.log
