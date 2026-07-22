@@ -16,8 +16,8 @@ import discord
 from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
-from rochana.core.plugin import Plug, PlugContext
-from rochana.plugs.discord_rochana.brief_job import BriefJob
+from plugd.core.plugin import Plug, PlugContext
+from plugd.plugs.discord_rochana.brief_job import BriefJob
 
 _HISTORY_LEN = 10
 BRIEF_JOB_ID = "discord_rochana_brief"

@@ -14,7 +14,7 @@ Everything is a **plug**. Add a folder, list it in one YAML file, restart — th
 ## Quickstart
 
 ```bash
-git clone <your-fork-url> rochana && cd rochana
+git clone <your-fork-url> plugd && cd plugd
 ./setup.sh          # guided setup: installs deps, logs into Claude, writes .env, runs
 ```
 
@@ -34,7 +34,7 @@ That's it. @mention the bot to chat; the 2-hour brief runs automatically.
 npm i -g @anthropic-ai/claude-code && claude login   # brain (no API key needed)
 cp .env.example .env                                  # fill DISCORD_ROCHANA_TOKEN + BOSS_DISCORD_CHANNEL_ID
 uv sync                                               # or: python -m venv .venv && pip install -e .
-uv run rochana                                        # or: python -m rochana
+uv run plugd                                        # or: python -m plugd
 ```
 Create the Discord bot at https://discord.com/developers/applications, enable the **Message Content** intent, invite it, and copy the target channel's ID (Developer Mode → right-click channel → Copy ID).
 </details>
@@ -52,13 +52,13 @@ APScheduler ──every 2h──▶ brief_job                       WebSearch + 
                   proactive gate ──▶ Discord (Boss channel)
 ```
 
-- **Brain** (`src/rochana/brain/claude_cli.py`) — spawns `claude -p --output-format json` directly (argv, no shell), feeds the prompt over stdin, parses the JSON result. Auth is your existing `claude login`.
+- **Brain** (`src/plugd/brain/claude_cli.py`) — spawns `claude -p --output-format json` directly (argv, no shell), feeds the prompt over stdin, parses the JSON result. Auth is your existing `claude login`.
 - **State** (`.runtime/state.sqlite`) — brief dedup, seen mail, a persistent daily-send cap, snooze. One SQLite file, that's the whole "database".
 - **Gate** (`core/proactivity.py`) — critical override → snooze → quiet hours → daily cap, so ROCHANA never spams you.
 
 ## The plug model
 
-A plug is a folder under `src/rochana/plugs/<name>/`:
+A plug is a folder under `src/plugd/plugs/<name>/`:
 
 ```
 plugs/my_plug/
@@ -66,9 +66,9 @@ plugs/my_plug/
 └── plug.py              # class implementing setup()/start()/stop()
 ```
 
-Add its name to `enabled_plugs:` in `config/rochana.yaml`, restart. To disable, remove it from the list. To share an upgrade, open a PR that adds one plug. Every plug shares one Discord connection, one scheduler, and one SQLite store (`PlugContext`).
+Add its name to `enabled_plugs:` in `config/plugd.yaml`, restart. To disable, remove it from the list. To share an upgrade, open a PR that adds one plug. Every plug shares one Discord connection, one scheduler, and one SQLite store (`PlugContext`).
 
-The shipped plug is [`discord_rochana`](src/rochana/plugs/discord_rochana/) — the chat bot + the 2-hour brief.
+The shipped plug is [`discord_rochana`](src/plugd/plugs/discord_rochana/) — the chat bot + the 2-hour brief.
 
 ## Gmail + Calendar
 
@@ -81,7 +81,7 @@ claude mcp add --transport http --scope user gcal  https://calendarmcp.googleapi
 claude mcp login gcal
 ```
 
-Run `claude mcp list` — both should show `✔ Connected`. That's it: the bot's `claude -p` brain inherits these user-scope connectors automatically (server names **must** be `gmail` and `gcal` so the tools match `mcp__gmail__*` / `mcp__gcal__*` in `config/rochana.yaml`).
+Run `claude mcp list` — both should show `✔ Connected`. That's it: the bot's `claude -p` brain inherits these user-scope connectors automatically (server names **must** be `gmail` and `gcal` so the tools match `mcp__gmail__*` / `mcp__gcal__*` in `config/plugd.yaml`).
 
 > `claude mcp login` needs an **interactive terminal** (it can't run headless). Run the two `login` commands yourself once; after that the always-on bot uses the stored auth.
 
@@ -94,11 +94,11 @@ Without any of this, ROCHANA still works — the brief just does **news only** (
 | File | What |
 |---|---|
 | `.env` | secrets: Discord token, channel id, optional Google OAuth / `ANTHROPIC_API_KEY` / `CLAUDE_BIN` |
-| `config/rochana.yaml` | behaviour: models, brief cadence, quiet hours, daily cap, enabled plugs |
+| `config/plugd.yaml` | behaviour: models, brief cadence, quiet hours, daily cap, enabled plugs |
 | `config/mcp.json` | MCP servers handed to the brain |
 | `personas/rochana.md` | เก้า's voice — reskin the assistant without touching code |
 
-Change the brief cadence in `config/rochana.yaml` → `brief.cron_hours` (cron hour expression, e.g. `"8-20/2"` or `"*/2"` for 24h).
+Change the brief cadence in `config/plugd.yaml` → `brief.cron_hours` (cron hour expression, e.g. `"8-20/2"` or `"*/2"` for 24h).
 
 ## Slash commands
 
@@ -110,7 +110,7 @@ This repo ships the [`scrutinize`](.claude/skills/scrutinize/SKILL.md) skill —
 
 ## Keeping it running (optional)
 
-The process is meant to stay up. For auto-restart on macOS, wrap `uv run rochana` in a `launchd` plist (or `pm2` / `systemd` on Linux). This is optional — the scheduler lives inside the process, not in cron.
+The process is meant to stay up. For auto-restart on macOS, wrap `uv run plugd` in a `launchd` plist (or `pm2` / `systemd` on Linux). This is optional — the scheduler lives inside the process, not in cron.
 
 ## License
 

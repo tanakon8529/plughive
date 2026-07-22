@@ -16,8 +16,8 @@ from zoneinfo import ZoneInfo
 
 from loguru import logger
 
-from rochana.core.plugin import PlugContext
-from rochana.core.proactivity import proactive_gate
+from plugd.core.plugin import PlugContext
+from plugd.core.proactivity import proactive_gate
 
 SKIP_TOKEN = "__SKIP__"
 

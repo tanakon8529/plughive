@@ -11,14 +11,14 @@ import sys
 
 from loguru import logger
 
-from rochana.brain.claude_cli import ClaudeBrain, ClaudeNotFound
-from rochana.brain.persona import PersonaLoader
-from rochana.config import Settings, load_settings
-from rochana.core.bot import BotManager
-from rochana.core.plugin import PlugContext
-from rochana.core.registry import PlugRegistry
-from rochana.core.state import StateStore
-from rochana.scheduler.runner import create_scheduler
+from plugd.brain.claude_cli import ClaudeBrain, ClaudeNotFound
+from plugd.brain.persona import PersonaLoader
+from plugd.config import Settings, load_settings
+from plugd.core.bot import BotManager
+from plugd.core.plugin import PlugContext
+from plugd.core.registry import PlugRegistry
+from plugd.core.state import StateStore
+from plugd.scheduler.runner import create_scheduler
 
 
 def _build_context(settings: Settings) -> tuple[PlugContext, StateStore, BotManager]:
@@ -72,13 +72,13 @@ async def run() -> None:
         sys.exit(1)
 
     registry = PlugRegistry(
-        settings.root / "src" / "rochana" / "plugs",
+        settings.root / "src" / "plugd" / "plugs",
         enabled=settings.enabled_plugs,
         mcp_config_path=settings.root / settings.brain.mcp_config,
     )
     loaded = registry.load_all(ctx)
     if not loaded:
-        logger.error("No plugs loaded — nothing to do. Check config/rochana.yaml.")
+        logger.error("No plugs loaded — nothing to do. Check config/plugd.yaml.")
         sys.exit(1)
 
     await registry.setup_all()

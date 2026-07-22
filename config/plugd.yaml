@@ -33,6 +33,6 @@ brief:
   cron_minute: 0
   include: [mail, calendar, news]
 
-# Plugs to load. Drop a folder in src/rochana/plugs/<name>/ and list it here.
+# Plugs to load. Drop a folder in src/plugd/plugs/<name>/ and list it here.
 enabled_plugs:
   - discord_rochana

@@ -219,10 +219,10 @@ verify() {
   "${runpy[@]}" - <<'PY' && ok "โมดูลโหลด + plug ถูกค้นพบ" || err "verify ล้มเหลว — ดู error ด้านบน"
 import os
 os.environ.setdefault("DISCORD_ROCHANA_TOKEN","x"); os.environ.setdefault("BOSS_DISCORD_CHANNEL_ID","1")
-from rochana.config import load_settings
-from rochana.core.registry import PlugRegistry
+from plugd.config import load_settings
+from plugd.core.registry import PlugRegistry
 s=load_settings()
-r=PlugRegistry(s.root/"src"/"rochana"/"plugs", enabled=s.enabled_plugs, mcp_config_path=s.root/s.brain.mcp_config)
+r=PlugRegistry(s.root/"src"/"plugd"/"plugs", enabled=s.enabled_plugs, mcp_config_path=s.root/s.brain.mcp_config)
 ms=r._discover_manifests(); assert ms, "no plugs found"
 print("   plugs:", ", ".join(m.name for _,m in ms))
 PY
@@ -235,10 +235,10 @@ run_bot() {
   step "8. รัน ROCHANA"
   if ! grep -q '^DISCORD_ROCHANA_TOKEN=.\+' .env 2>/dev/null; then err "ยังไม่มี token — ทำ step 5 ก่อน"; return 1; fi
   info "กำลังสตาร์ต… (Ctrl+C เพื่อหยุด)"
-  if command -v uv >/dev/null 2>&1; then exec uv run rochana
-  elif [ -f .venv/bin/activate ]; then . .venv/bin/activate; exec rochana
-  elif [ -f .venv/Scripts/activate ]; then . .venv/Scripts/activate; exec rochana
-  else exec "$PY" -m rochana; fi
+  if command -v uv >/dev/null 2>&1; then exec uv run plugd
+  elif [ -f .venv/bin/activate ]; then . .venv/bin/activate; exec plugd
+  elif [ -f .venv/Scripts/activate ]; then . .venv/Scripts/activate; exec plugd
+  else exec "$PY" -m plugd; fi
 }
 
 full_setup() {
@@ -250,7 +250,7 @@ full_setup() {
   configure_env
   google_mcp
   verify
-  echo; ok "${B}เสร็จแล้ว!${R} เลือกเมนู 8 เพื่อรัน หรือ: ${B}uv run rochana${R}"
+  echo; ok "${B}เสร็จแล้ว!${R} เลือกเมนู 8 เพื่อรัน หรือ: ${B}uv run plugd${R}"
   pause
 }
 
@@ -274,7 +274,7 @@ ${B}ROCHANA — ผู้ช่วยส่วนตัว Claude CLI × Discord
 
   ${B}ไฟล์สำคัญ${R}:
     .env                 = secret (token, channel id)
-    config/rochana.yaml  = พฤติกรรม (รอบ brief, quiet hours, โมเดล, plugs)
+    config/plugd.yaml  = พฤติกรรม (รอบ brief, quiet hours, โมเดล, plugs)
     personas/rochana.md  = น้ำเสียงของ 'เก้า'
 
   ${B}Windows${R}: รันไฟล์นี้ใน Git Bash (มากับ Git for Windows) หรือ WSL.

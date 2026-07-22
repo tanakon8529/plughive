@@ -16,9 +16,9 @@ from pathlib import Path
 import yaml
 from loguru import logger
 
-from rochana.core.plugin import Plug, PlugContext, PlugManifest
+from plugd.core.plugin import Plug, PlugContext, PlugManifest
 
-_PLUGS_PKG = "rochana.plugs"
+_PLUGS_PKG = "plugd.plugs"
 
 
 def _mcp_server_names(mcp_config_path: Path) -> set[str]:

@@ -84,10 +84,10 @@ function Verify {
   Step "6. Verify"
   $env:DISCORD_ROCHANA_TOKEN = "x"; $env:BOSS_DISCORD_CHANNEL_ID = "1"
   $code = @"
-from rochana.config import load_settings
-from rochana.core.registry import PlugRegistry
+from plugd.config import load_settings
+from plugd.core.registry import PlugRegistry
 s=load_settings()
-r=PlugRegistry(s.root/'src'/'rochana'/'plugs', enabled=s.enabled_plugs, mcp_config_path=s.root/s.brain.mcp_config)
+r=PlugRegistry(s.root/'src'/'plugd'/'plugs', enabled=s.enabled_plugs, mcp_config_path=s.root/s.brain.mcp_config)
 ms=r._discover_manifests(); assert ms; print('plugs:', ', '.join(m.name for _,m in ms))
 "@
   if(Has uv){ $code | uv run python - } else { $code | & (Py) - }
@@ -96,12 +96,12 @@ ms=r._discover_manifests(); assert ms; print('plugs:', ', '.join(m.name for _,m 
 
 function Run-Bot {
   Step "7. Run ROCHANA"
-  if(Has uv){ uv run rochana }
-  elseif(Test-Path .\.venv\Scripts\rochana.exe){ .\.venv\Scripts\rochana.exe }
-  else { & (Py) -m rochana }
+  if(Has uv){ uv run plugd }
+  elseif(Test-Path .\.venv\Scripts\plugd.exe){ .\.venv\Scripts\plugd.exe }
+  else { & (Py) -m plugd }
 }
 
-function Full { Banner; if(Check-Prereqs){ Install-Tools; Claude-Login; Install-Deps; Configure-Env; Verify; Ok "Done! menu 7 to run, or: uv run rochana" } }
+function Full { Banner; if(Check-Prereqs){ Install-Tools; Claude-Login; Install-Deps; Configure-Env; Verify; Ok "Done! menu 7 to run, or: uv run plugd" } }
 
 function Menu {
   while($true){
