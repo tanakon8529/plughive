@@ -85,14 +85,31 @@ M_run_no_token="ยังไม่มี token — ทำ step 5 ก่อน"
 M_run_starting="กำลังสตาร์ต… (Ctrl+C เพื่อหยุด)"
 M_done="เสร็จแล้ว! เลือกเมนู รัน หรือ: uv run plughive"
 
-M_google_text="ข่าวใช้ได้เลยไม่ต้องตั้งอะไร (WebSearch ในตัว). Mail/Calendar ใน brief เป็นออปชัน
-  ต่อไว้ให้แล้วผ่าน local Google MCP (npx, ไม่มี Docker) ใน config/mcp.json.
-  เปิดใช้ 3 ขั้น:
-    1) สร้าง Google OAuth 'Desktop app' client (เปิด Gmail + Calendar API)
-    2) ใส่ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET ใน .env
-    3) authorize ครั้งเดียว (เปิด browser):
-       claude -p \"List my 3 most recent emails.\" --mcp-config config/mcp.json --allowedTools \"mcp__google__*\"
-  ขั้นตอนเต็ม: README §Gmail/Calendar. ข้ามได้ถ้าจะเอาแค่ข่าว"
+M_google_text="ค่าเริ่มต้นคือ ข่าว + แชท (ไม่ต้องตั้งอะไร). Mail/Calendar เป็นออปชัน: บอทเบื้องหลัง
+  ใช้ connector ของ Claude ไม่ได้ (headless) เลยต้องมี Google credential ของตัวเองผ่าน
+  local MCP server (npx, ไม่มี Docker). เมนูนี้จะตั้งให้ — คุณแค่สร้าง OAuth client ใน Google
+  แล้วกด Allow ครั้งเดียว"
+M_g_enable_q="เปิด Gmail + Calendar เลยไหม?"
+M_g_skip="ข้ามไปก่อน — ใช้ ข่าว + แชท. กลับมาเปิดทีหลังจากเมนูนี้ได้"
+M_g_need_claude="ติดตั้ง claude CLI ก่อน (เมนู 3)"
+M_g_enabled_file="เปิด config/mcp.local.json แล้ว"
+M_g_cloud="ขั้น A — สร้าง Google OAuth client (ในเบราว์เซอร์):
+    1) เปิด Gmail + Calendar API (คลิกเดียว):
+       https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com,calendar-json.googleapis.com
+    2) APIs & Services -> Credentials -> Create Credentials -> OAuth client ID
+       -> Application type: Desktop app -> copy Client ID กับ Client secret
+    3) OAuth consent screen: User type External; เพิ่ม scope gmail.modify,
+       gmail.labels, calendar; เพิ่ม Google account ตัวเองใน Test users"
+M_g_wait_creds="พอได้ Client ID + Secret แล้ว กด Enter เพื่อวาง"
+M_g_paste_id="วาง GOOGLE_CLIENT_ID"
+M_g_paste_secret="วาง GOOGLE_CLIENT_SECRET (ซ่อน): "
+M_g_env_saved="บันทึก credentials ลง .env แล้ว"
+M_g_need_creds="ยังไม่มี Client ID / Secret — กลับมาเมนูนี้ตอนได้แล้ว"
+M_g_authorize_q="authorize เลยไหม? (เปิด browser ให้กดอนุญาต)"
+M_g_authorizing="กำลัง authorize — กด Allow ในเบราว์เซอร์ที่เปิดขึ้น…"
+M_g_authorized="authorize สำเร็จ — เก็บ token แล้ว; brief จะมี mail + calendar"
+M_g_authorize_later="ข้าม authorize ไว้ก่อน รันทีหลังได้:"
+M_g_done="เปิด Gmail + Calendar เรียบร้อย"
 
 M_help_text="plughive — ผู้ช่วยส่วนตัวแบบ plug-and-play (Claude CLI × Discord)
 

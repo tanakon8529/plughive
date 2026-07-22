@@ -157,8 +157,57 @@ PY
   grep -q '^DISCORD_BOT_TOKEN=.\+' .env && ok "$M_env_has_token" || warn "$M_env_no_token"
   grep -q '^DISCORD_CHANNEL_ID=[0-9]\+' .env && ok "$M_env_has_channel" || warn "$M_env_no_channel"; }
 
-google_mcp(){ step "$M_step_google"; printf "  %s\n" "$M_google_text"
-  if command -v claude >/dev/null 2>&1; then echo; info "claude mcp list:"; claude mcp list 2>/dev/null | grep -vE 'Checking' | sed 's/^/    /' | head; fi; }
+google_mcp(){
+  step "$M_step_google"
+  printf "  %s\n\n" "$M_google_text"
+  yesno "$M_g_enable_q" || { info "$M_g_skip"; return; }
+  command -v claude >/dev/null 2>&1 || { err "$M_g_need_claude"; return 1; }
+
+  # 1) turn on the opt-in local MCP override
+  [ -f config/mcp.local.json ] || cp config/mcp.local.example.json config/mcp.local.json
+  ok "$M_g_enabled_file"
+
+  # 2) Google Cloud OAuth client (user does this in the browser)
+  printf "\n  %s\n\n  %s" "$M_g_cloud" "$M_g_wait_creds"; read -r _
+
+  # 3) credentials -> .env
+  [ -f .env ] || cp .env.example .env
+  local gid gsec
+  gid="$(ask "  $M_g_paste_id")"
+  printf "  %s" "$M_g_paste_secret"; stty -echo 2>/dev/null; read -r gsec; stty echo 2>/dev/null; echo
+  if [ -z "$gid" ] || [ -z "$gsec" ]; then warn "$M_g_need_creds"; return; fi
+  GID="$gid" GSEC="$gsec" "$PY" - <<'PY'
+import os, re, pathlib
+p=pathlib.Path(".env"); lines=p.read_text().splitlines()
+def setkv(lines,k,v):
+    out,seen=[],False
+    for ln in lines:
+        if re.match(rf'^\s*#?\s*{re.escape(k)}=', ln): out.append(f"{k}={v}"); seen=True
+        else: out.append(ln)
+    if not seen: out.append(f"{k}={v}")
+    return out
+lines=setkv(lines,"GOOGLE_CLIENT_ID",os.environ["GID"])
+lines=setkv(lines,"GOOGLE_CLIENT_SECRET",os.environ["GSEC"])
+p.write_text("\n".join(lines)+"\n")
+PY
+  chmod 600 .env 2>/dev/null || true
+  ok "$M_g_env_saved"
+
+  # 4) one-time authorization (the server opens a browser)
+  local authcmd='claude -p "List my 3 most recent emails." --mcp-config config/mcp.local.json --allowedTools "mcp__google__*"'
+  if yesno "$M_g_authorize_q"; then
+    info "$M_g_authorizing"
+    set -a; . ./.env 2>/dev/null; set +a   # export creds so the npx server can read them
+    if claude -p "List my 3 most recent emails." --mcp-config config/mcp.local.json --allowedTools "mcp__google__*"; then
+      ok "$M_g_authorized"
+    else
+      warn "$M_g_authorize_later"; printf "    %s\n" "$authcmd"
+    fi
+  else
+    info "$M_g_authorize_later"; printf "    %s\n" "$authcmd"
+  fi
+  ok "${B}${M_g_done}${R}"
+}
 
 verify(){
   step "$M_step_verify"

@@ -85,14 +85,31 @@ M_run_no_token="no token yet — do step 5 first"
 M_run_starting="starting… (Ctrl+C to stop)"
 M_done="Done! Pick menu Run, or: uv run plughive"
 
-M_google_text="News works out of the box (built-in WebSearch). Mail/Calendar in the brief are
-  optional and pre-wired via a local Google MCP server (npx, no Docker) in config/mcp.json.
-  To enable, 3 steps:
-    1) create a Google OAuth 'Desktop app' client (enable Gmail + Calendar APIs)
-    2) put GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in .env
-    3) authorize once (browser):
-       claude -p \"List my 3 most recent emails.\" --mcp-config config/mcp.json --allowedTools \"mcp__google__*\"
-  Full walkthrough: README §Gmail/Calendar. Skip it to run news-only."
+M_google_text="Default is news + chat (zero setup). Mail/Calendar is an optional add-on: a
+  background bot can't use Claude's connectors (headless), so it needs its own Google
+  credential via a local MCP server (npx, no Docker). This wizard sets it up for you —
+  you only create the OAuth client in Google and click Allow once."
+M_g_enable_q="Enable Gmail + Calendar now?"
+M_g_skip="Skipped — running news + chat. You can enable it later from this menu."
+M_g_need_claude="Install the claude CLI first (menu 3)."
+M_g_enabled_file="enabled config/mcp.local.json"
+M_g_cloud="STEP A — create your Google OAuth client (in the browser):
+    1) Enable Gmail + Calendar APIs (one click):
+       https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com,calendar-json.googleapis.com
+    2) APIs & Services -> Credentials -> Create Credentials -> OAuth client ID
+       -> Application type: Desktop app -> copy the Client ID and Client secret
+    3) OAuth consent screen: User type External; add scopes gmail.modify,
+       gmail.labels, calendar; add your own Google account under Test users."
+M_g_wait_creds="When you have the Client ID + Secret, press Enter to paste them"
+M_g_paste_id="Paste GOOGLE_CLIENT_ID"
+M_g_paste_secret="Paste GOOGLE_CLIENT_SECRET (hidden): "
+M_g_env_saved="credentials saved to .env"
+M_g_need_creds="Client ID / Secret missing — run this menu again when you have them."
+M_g_authorize_q="Authorize now? (opens a browser to approve access)"
+M_g_authorizing="Authorizing — approve in the browser that opens…"
+M_g_authorized="authorized — token saved; the brief now includes mail + calendar"
+M_g_authorize_later="Skipped authorization. Run it later:"
+M_g_done="Gmail + Calendar enabled."
 
 M_help_text="plughive — a plug-and-play personal AI (Claude CLI × Discord).
 
