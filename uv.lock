@@ -490,7 +490,7 @@ wheels = [
 ]
 
 [[package]]
-name = "plugd"
+name = "plughive"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

@@ -1,4 +1,4 @@
-"""Load .env + config/plugd.yaml into a typed Settings object.
+"""Load .env + config/plughive.yaml into a typed Settings object.
 
 Secrets come from the environment (.env); behaviour comes from the YAML. No
 DB, no config service — just two files a forker can read and edit.
@@ -15,7 +15,7 @@ from loguru import logger
 
 
 def repo_root() -> Path:
-    # src/plugd/config.py → repo root is three parents up.
+    # src/plughive/config.py → repo root is three parents up.
     return Path(__file__).resolve().parents[2]
 
 
@@ -78,7 +78,7 @@ def load_settings() -> Settings:
     root = repo_root()
     load_dotenv(root / ".env")
 
-    cfg_path = root / "config" / "plugd.yaml"
+    cfg_path = root / "config" / "plughive.yaml"
     raw = yaml.safe_load(cfg_path.read_text()) if cfg_path.is_file() else {}
     raw = raw or {}
 

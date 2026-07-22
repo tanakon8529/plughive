@@ -16,9 +16,9 @@ from pathlib import Path
 import yaml
 from loguru import logger
 
-from plugd.core.plugin import Plug, PlugContext, PlugManifest
+from plughive.core.plugin import Plug, PlugContext, PlugManifest
 
-_PLUGS_PKG = "plugd.plugs"
+_PLUGS_PKG = "plughive.plugs"
 
 
 def _mcp_server_names(mcp_config_path: Path) -> set[str]:

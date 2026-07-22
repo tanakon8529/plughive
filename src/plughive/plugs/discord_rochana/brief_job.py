@@ -16,8 +16,8 @@ from zoneinfo import ZoneInfo
 
 from loguru import logger
 
-from plugd.core.plugin import PlugContext
-from plugd.core.proactivity import proactive_gate
+from plughive.core.plugin import PlugContext
+from plughive.core.proactivity import proactive_gate
 
 SKIP_TOKEN = "__SKIP__"
 

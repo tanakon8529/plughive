@@ -1,21 +1,21 @@
-"""Entrypoint for `python -m plugd` and the `plugd` console script."""
+"""Entrypoint for `python -m plughive` and the `plughive` console script."""
 from __future__ import annotations
 
 import sys
 
 from loguru import logger
 
-from plugd import __version__
+from plughive import __version__
 
 _USAGE = """\
-plugd — a plug-and-play personal AI (Claude CLI × Discord)
+plughive — a plug-and-play personal AI (Claude CLI × Discord)
 
 usage:
-  plugd            start the bot (Discord + scheduled brief)
-  plugd --help     show this help
-  plugd --version  print version
+  plughive            start the bot (Discord + scheduled brief)
+  plughive --help     show this help
+  plughive --version  print version
 
-config:  config/plugd.yaml   secrets: .env   persona: personas/rochana.md
+config:  config/plughive.yaml   secrets: .env   persona: personas/rochana.md
 setup:   ./setup.sh   (or setup.ps1 on Windows)
 """
 
@@ -27,16 +27,16 @@ def main() -> None:
             print(_USAGE)
             return
         if args[0] in ("-V", "--version"):
-            print(f"plugd {__version__}")
+            print(f"plughive {__version__}")
             return
-        print(f"plugd: unknown argument {args[0]!r}\n", file=sys.stderr)
+        print(f"plughive: unknown argument {args[0]!r}\n", file=sys.stderr)
         print(_USAGE, file=sys.stderr)
         raise SystemExit(2)
 
     logger.remove()
     logger.add(sys.stderr, level="INFO",
                format="<green>{time:HH:mm:ss}</green> <level>{level: <7}</level> {message}")
-    from plugd.app import run_blocking
+    from plughive.app import run_blocking
     run_blocking()
 
 

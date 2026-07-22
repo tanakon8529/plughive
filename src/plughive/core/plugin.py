@@ -1,9 +1,9 @@
 """Plug interface + shared context.
 
-A "plug" is a self-contained capability under src/plugd/plugs/<name>/ with a
+A "plug" is a self-contained capability under src/plughive/plugs/<name>/ with a
 manifest.yaml and a plug.py exposing a Plug subclass. Plugs share one process:
 one Discord connection, one scheduler, one SQLite file. Adding a capability =
-drop a folder + list it in config/plugd.yaml. That's the "dynamic scaling".
+drop a folder + list it in config/plughive.yaml. That's the "dynamic scaling".
 """
 from __future__ import annotations
 
@@ -14,11 +14,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-    from plugd.brain.claude_cli import ClaudeBrain
-    from plugd.brain.persona import PersonaLoader
-    from plugd.config import Settings
-    from plugd.core.bot import BotManager
-    from plugd.core.state import StateStore
+    from plughive.brain.claude_cli import ClaudeBrain
+    from plughive.brain.persona import PersonaLoader
+    from plughive.config import Settings
+    from plughive.core.bot import BotManager
+    from plughive.core.state import StateStore
 
 
 @dataclass(frozen=True)
