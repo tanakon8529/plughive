@@ -21,6 +21,7 @@ git clone <your-fork-url> plughive && cd plughive
 The **`setup.sh`** wizard (macOS · Linux · WSL · Git Bash) walks you through everything with a menu — it checks prerequisites, installs the `claude` CLI + `uv`, runs `claude login`, installs dependencies, and prompts you for your Discord token & channel id. It **pauses and waits** whenever a step needs you (browser login, creating the bot). Run `./setup.sh --all` for the whole flow, `./setup.sh --help` for details.
 
 - **Windows (native):** `./setup.ps1` in PowerShell — or just use `./setup.sh` in Git Bash.
+- **Language:** the wizard speaks **English & ไทย** — switch any time via the `l` menu item, or start with `PLUGHIVE_LANG=en ./setup.sh`. Add a language by dropping a `locales/<code>.sh` file (copy `locales/en.sh`, translate) — the menu picks it up automatically.
 - **Prefer to do it by hand?** See [Manual setup](#manual-setup) below.
 
 That's it. @mention the bot to chat; the 2-hour brief runs automatically.
@@ -32,7 +33,7 @@ That's it. @mention the bot to chat; the 2-hour brief runs automatically.
 
 ```bash
 npm i -g @anthropic-ai/claude-code && claude login   # brain (no API key needed)
-cp .env.example .env                                  # fill DISCORD_ROCHANA_TOKEN + BOSS_DISCORD_CHANNEL_ID
+cp .env.example .env                                  # fill DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID
 uv sync                                               # or: python -m venv .venv && pip install -e .
 uv run plughive                                        # or: python -m plughive
 ```

@@ -67,22 +67,22 @@ function Configure-Env {
   if(-not (Test-Path .env)){ Copy-Item .env.example .env }
   Info "Bot: https://discord.com/developers/applications  (enable MESSAGE CONTENT intent)"
   Info "Copy the target channel id (Developer Mode -> right-click channel -> Copy ID)"
-  $tok = Read-Host "DISCORD_ROCHANA_TOKEN (blank = keep)" -AsSecureString
+  $tok = Read-Host "DISCORD_BOT_TOKEN (blank = keep)" -AsSecureString
   $tokPlain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($tok))
-  $cid = Read-Host "BOSS_DISCORD_CHANNEL_ID"
+  $cid = Read-Host "DISCORD_CHANNEL_ID"
   $lines = Get-Content .env
   function SetKV($lines,$k,$v){ if(-not $v){return $lines}; $seen=$false
     $out = $lines | ForEach-Object { if($_ -match "^\s*#?\s*$k="){ $seen=$true; "$k=$v" } else { $_ } }
     if(-not $seen){ $out += "$k=$v" }; return $out }
-  $lines = SetKV $lines "DISCORD_ROCHANA_TOKEN" $tokPlain
-  $lines = SetKV $lines "BOSS_DISCORD_CHANNEL_ID" $cid
+  $lines = SetKV $lines "DISCORD_BOT_TOKEN" $tokPlain
+  $lines = SetKV $lines "DISCORD_CHANNEL_ID" $cid
   Set-Content .env $lines
   Ok ".env updated"
 }
 
 function Verify {
   Step "6. Verify"
-  $env:DISCORD_ROCHANA_TOKEN = "x"; $env:BOSS_DISCORD_CHANNEL_ID = "1"
+  $env:DISCORD_BOT_TOKEN = "x"; $env:DISCORD_CHANNEL_ID = "1"
   $code = @"
 from plughive.config import load_settings
 from plughive.core.registry import PlugRegistry

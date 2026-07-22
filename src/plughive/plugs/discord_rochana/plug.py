@@ -60,7 +60,7 @@ class DiscordRochanaPlug(Plug):
                 listing = "\n  ".join(chans) or "(bot can see no text channels)"
                 logger.warning(
                     f"[discord_rochana] ⚠️ {cid} is a SERVER id, not a channel. "
-                    f"Set BOSS_DISCORD_CHANNEL_ID to one of these channels in '{guild.name}':\n  {listing}"
+                    f"Set DISCORD_CHANNEL_ID to one of these channels in '{guild.name}':\n  {listing}"
                 )
                 return
             logger.warning(

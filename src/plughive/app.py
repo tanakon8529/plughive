@@ -61,7 +61,7 @@ async def run() -> None:
 
     if not settings.discord_token:
         logger.error(
-            "DISCORD_ROCHANA_TOKEN is not set. Copy .env.example to .env and fill it in."
+            "DISCORD_BOT_TOKEN is not set. Copy .env.example to .env and fill it in."
         )
         sys.exit(1)
 

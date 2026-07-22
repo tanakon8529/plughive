@@ -112,13 +112,19 @@ def load_settings() -> Settings:
             cron_minute=int(brief_raw.get("cron_minute", 0)),
             include=list(brief_raw.get("include", ["mail", "calendar", "news"]) or []),
         ),
-        discord_token=os.environ.get("DISCORD_ROCHANA_TOKEN", ""),
-        # Accept BOSS_DISCORD_CHANNEL_ID, or fall back to BOSS_DISCORD_SERVER_ID
-        # (the name the old system used). This must resolve to a *channel* id;
-        # a startup check warns if it's actually a server/guild id.
+        # Generic, framework-level env names. Legacy persona-specific names are
+        # still accepted as fallbacks so existing .env files keep working.
+        discord_token=(
+            os.environ.get("DISCORD_BOT_TOKEN")
+            or os.environ.get("DISCORD_ROCHANA_TOKEN")  # legacy
+            or ""
+        ),
+        # DISCORD_CHANNEL_ID must resolve to a *channel* id; a startup check
+        # warns if it's actually a server/guild id.
         boss_channel_id=int(
-            (os.environ.get("BOSS_DISCORD_CHANNEL_ID")
-             or os.environ.get("BOSS_DISCORD_SERVER_ID")
+            (os.environ.get("DISCORD_CHANNEL_ID")
+             or os.environ.get("BOSS_DISCORD_CHANNEL_ID")   # legacy
+             or os.environ.get("BOSS_DISCORD_SERVER_ID")    # legacy
              or "0") or "0"
         ),
     )
