@@ -85,12 +85,14 @@ M_run_no_token="no token yet — do step 5 first"
 M_run_starting="starting… (Ctrl+C to stop)"
 M_done="Done! Pick menu Run, or: uv run plughive"
 
-M_google_text="News works out of the box (built-in WebSearch). Mail/Calendar in the brief are optional:
-  A) Claude connector (claude.ai) — handy when you chat, but the headless bot can't see it,
-     and Google's endpoint rejects 'claude mcp login' (no dynamic client registration).
-  B) Google Workspace MCP (local, via npx) — works for the bot; needs your own Google OAuth
-     client, then add the server to config/mcp.json (see README §Gmail/Calendar).
-  Tip: start news-only, add Mail/Calendar later if you want it."
+M_google_text="News works out of the box (built-in WebSearch). Mail/Calendar in the brief are
+  optional and pre-wired via a local Google MCP server (npx, no Docker) in config/mcp.json.
+  To enable, 3 steps:
+    1) create a Google OAuth 'Desktop app' client (enable Gmail + Calendar APIs)
+    2) put GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in .env
+    3) authorize once (browser):
+       claude -p \"List my 3 most recent emails.\" --mcp-config config/mcp.json --allowedTools \"mcp__google__*\"
+  Full walkthrough: README §Gmail/Calendar. Skip it to run news-only."
 
 M_help_text="plughive — a plug-and-play personal AI (Claude CLI × Discord).
 

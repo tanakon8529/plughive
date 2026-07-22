@@ -21,12 +21,11 @@ brain:
   brief_max_turns: 12
   chat_timeout_s: 120
   brief_timeout_s: 300
-  # Tools the brain is allowed to call. WebSearch powers news; the mcp__*
-  # globs match the Gmail/Calendar connectors registered in your `claude` CLI.
+  # Tools the brain is allowed to call. WebSearch powers news; mcp__google__*
+  # is the Gmail/Calendar MCP server defined in config/mcp.json.
   allowed_tools:
     - WebSearch
-    - "mcp__gmail__*"
-    - "mcp__gcal__*"
+    - "mcp__google__*"
   mcp_config: config/mcp.json
 
 proactivity:

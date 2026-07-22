@@ -73,22 +73,28 @@ The shipped plug is [`discord`](src/plughive/plugs/discord/) — the chat bot + 
 
 ## Gmail + Calendar
 
-The bot reads mail/calendar through **MCP connectors registered in your `claude` CLI**. The recommended setup uses Google's **remote HTTP MCP endpoints** — nothing runs locally (no Docker, no `npx`), you just authorize them once:
+Mail/Calendar in the brief come from a **local Google MCP server** ([`@dguido/google-workspace-mcp`](https://github.com/dguido/google-workspace-mcp)) that the brain launches on demand via `npx` — no Docker, nothing running in the background. It's pre-wired in `config/mcp.json` (server `google` → tools `mcp__google__*`). You only need your own Google OAuth client and a one-time authorization:
 
-```bash
-claude mcp add --transport http --scope user gmail https://gmailmcp.googleapis.com/mcp/v1
-claude mcp login gmail        # opens a browser, one-time OAuth
-claude mcp add --transport http --scope user gcal  https://calendarmcp.googleapis.com/mcp/v1
-claude mcp login gcal
+**1. Create a Google OAuth client (once, ~3 min)**
+- Enable the Gmail + Calendar APIs: [one-click link](https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com,calendar-json.googleapis.com)
+- **APIs & Services → Credentials → Create Credentials → OAuth client ID → Application type: Desktop app**. Copy the **Client ID** and **Client secret**.
+- **OAuth consent screen**: user type *External*, add the scopes `gmail.modify`, `gmail.labels`, `calendar`, and add your own Google account under **Test users**.
+
+**2. Put the credentials in `.env`**
+```
+GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=xxxxx
 ```
 
-Run `claude mcp list` — both should show `✔ Connected`. That's it: the bot's `claude -p` brain inherits these user-scope connectors automatically (server names **must** be `gmail` and `gcal` so the tools match `mcp__gmail__*` / `mcp__gcal__*` in `config/plughive.yaml`).
+**3. Authorize once (opens a browser)**
+```bash
+claude -p "List my 3 most recent emails." --mcp-config config/mcp.json --allowedTools "mcp__google__*"
+```
+Approve in the browser — the server saves a token to `~/.config/google-workspace-mcp/tokens.json` (0600). After that the always-on bot uses that token headlessly; the brief includes mail + calendar.
 
-> `claude mcp login` needs an **interactive terminal** (it can't run headless). Run the two `login` commands yourself once; after that the always-on bot uses the stored auth.
+> Prefer read-only? Swap the scopes to `gmail.readonly` + `calendar.readonly` on the consent screen.
 
-**Fork alternative:** to self-host, add a Google Workspace MCP server under `mcpServers` in `config/mcp.json` — the brain passes it to `claude -p` via `--mcp-config`.
-
-Without any of this, the bot still works — the brief just does **news only** (mail/calendar are skipped, not errored). News needs no setup; it uses the Claude CLI's built-in **WebSearch**.
+Without any of this the bot still works — the brief just does **news only** (mail/calendar are skipped, not errored). News needs no setup; it uses the Claude CLI's built-in **WebSearch**.
 
 ## Configuration
 

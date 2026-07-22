@@ -1,4 +1,14 @@
 {
-  "//": "Mail/Calendar are provided by remote HTTP MCP connectors registered in your `claude` CLI itself (zero local infra), NOT by a server launched from here. So this file is intentionally empty — the brain inherits your CLI's user-scope MCP servers automatically. Set them up once (see README §Gmail/Calendar): `claude mcp add --transport http --scope user gmail https://gmailmcp.googleapis.com/mcp/v1` then `claude mcp login gmail` (and the same for `gcal`). To instead pin a local/self-hosted MCP server for a fork, add it under mcpServers here and it will be passed to the brain via --mcp-config.",
-  "mcpServers": {}
+  "//": "MCP servers passed to the brain via `claude -p --mcp-config`. The `google` server runs locally via npx (no Docker) and gives the brain Gmail + Calendar tools (mcp__google__*). It needs your own Google OAuth Desktop client — set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in .env, then authorize once (see README §Gmail/Calendar). ${VAR} is expanded from your environment (.env is loaded before the brain runs). To disable Mail/Calendar, set mcpServers to {}.",
+  "mcpServers": {
+    "google": {
+      "command": "npx",
+      "args": ["-y", "@dguido/google-workspace-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
+        "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
+        "GOOGLE_WORKSPACE_SERVICES": "gmail,calendar"
+      }
+    }
+  }
 }

@@ -85,12 +85,14 @@ M_run_no_token="ยังไม่มี token — ทำ step 5 ก่อน"
 M_run_starting="กำลังสตาร์ต… (Ctrl+C เพื่อหยุด)"
 M_done="เสร็จแล้ว! เลือกเมนู รัน หรือ: uv run plughive"
 
-M_google_text="ข่าวใช้ได้เลยไม่ต้องตั้งอะไร (WebSearch ในตัว). Mail/Calendar ใน brief เป็นออปชัน:
-  A) Claude connector (claude.ai) — สะดวกตอนแชทเอง แต่ headless (บอท) มองไม่เห็น
-     และ endpoint ของ Google ไม่รองรับ 'claude mcp login' (dynamic client registration)
-  B) Google Workspace MCP (local, ผ่าน npx) — ใช้กับบอทได้ ต้องมี Google OAuth client
-     ของตัวเอง แล้วใส่ server ลง config/mcp.json (ดู README §Gmail/Calendar)
-  แนะนำ: เริ่ม news-only ก่อน แล้วค่อยเพิ่ม Mail/Calendar ทีหลังถ้าต้องการ"
+M_google_text="ข่าวใช้ได้เลยไม่ต้องตั้งอะไร (WebSearch ในตัว). Mail/Calendar ใน brief เป็นออปชัน
+  ต่อไว้ให้แล้วผ่าน local Google MCP (npx, ไม่มี Docker) ใน config/mcp.json.
+  เปิดใช้ 3 ขั้น:
+    1) สร้าง Google OAuth 'Desktop app' client (เปิด Gmail + Calendar API)
+    2) ใส่ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET ใน .env
+    3) authorize ครั้งเดียว (เปิด browser):
+       claude -p \"List my 3 most recent emails.\" --mcp-config config/mcp.json --allowedTools \"mcp__google__*\"
+  ขั้นตอนเต็ม: README §Gmail/Calendar. ข้ามได้ถ้าจะเอาแค่ข่าว"
 
 M_help_text="plughive — ผู้ช่วยส่วนตัวแบบ plug-and-play (Claude CLI × Discord)
 
