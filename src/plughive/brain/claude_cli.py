@@ -101,20 +101,24 @@ class ClaudeBrain:
     ) -> None:
         self._binary = find_claude_binary()
         self._allowed_tools = allowed_tools
-        # Only pass --mcp-config if the file actually exists and defines servers.
+        # Only pass --mcp-config if a config actually defines servers. A local,
+        # gitignored override (mcp.local.json) wins over the committed mcp.json —
+        # so enabling optional add-ons (e.g. Gmail/Calendar) never touches the
+        # shared, easy-by-default config.
         self._mcp_config: str | None = None
         if mcp_config:
             p = (repo_root / mcp_config) if not Path(mcp_config).is_absolute() else Path(mcp_config)
+            local = p.with_name(p.stem + ".local" + p.suffix)  # config/mcp.local.json
+            if local.is_file():
+                p = local
             if p.is_file() and self._mcp_has_servers(p):
                 self._mcp_config = str(p)
             else:
-                # Empty/absent mcp.json is the normal case: the brain then falls
-                # back to whatever MCP servers your `claude` CLI has registered
-                # (e.g. user-scope Gmail/Calendar connectors). Only self-hosted
-                # forks put servers in mcp.json.
+                # No servers configured — the default. Chat + news work with zero
+                # setup; mail/calendar are an opt-in (see README §Gmail/Calendar).
                 logger.info(
-                    "[brain] no servers in config/mcp.json — using the claude CLI's "
-                    "own registered MCP servers (run `claude mcp list` to see them)"
+                    "[brain] no MCP servers configured — chat + news only "
+                    "(add config/mcp.local.json to enable Gmail/Calendar)"
                 )
         # The brain runs in a scratch cwd, never the repo root — it has no
         # business editing project files; tools are restricted to read/search.

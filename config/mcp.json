@@ -1,14 +1,4 @@
 {
-  "//": "MCP servers passed to the brain via `claude -p --mcp-config`. The `google` server runs locally via npx (no Docker) and gives the brain Gmail + Calendar tools (mcp__google__*). It needs your own Google OAuth Desktop client — set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in .env, then authorize once (see README §Gmail/Calendar). ${VAR} is expanded from your environment (.env is loaded before the brain runs). To disable Mail/Calendar, set mcpServers to {}.",
-  "mcpServers": {
-    "google": {
-      "command": "npx",
-      "args": ["-y", "@dguido/google-workspace-mcp"],
-      "env": {
-        "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
-        "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
-        "GOOGLE_WORKSPACE_SERVICES": "gmail,calendar"
-      }
-    }
-  }
+  "//": "MCP servers passed to the brain via `claude -p --mcp-config`. Empty by default → the bot runs chat + news with ZERO setup (easy plug-and-play). Gmail/Calendar are an OPT-IN add-on: copy config/mcp.local.example.json to config/mcp.local.json (gitignored) and follow README §Gmail/Calendar. A local override, if present, wins over this file.",
+  "mcpServers": {}
 }

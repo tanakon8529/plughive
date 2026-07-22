@@ -3,6 +3,7 @@
 
 # per-user config overrides (keep the shared config generic)
 config/*.local.yaml
+config/*.local.json
 
 # runtime state & logs
 .runtime/

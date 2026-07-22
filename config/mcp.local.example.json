@@ -1,0 +1,14 @@
+{
+  "//": "OPT-IN Gmail/Calendar. Copy this to config/mcp.local.json (gitignored) to enable mail/calendar in the brief. Requires your own Google OAuth 'Desktop app' client — put GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in .env, then authorize once (README §Gmail/Calendar). The `google` server runs on demand via npx (no Docker); tools appear as mcp__google__*.",
+  "mcpServers": {
+    "google": {
+      "command": "npx",
+      "args": ["-y", "@dguido/google-workspace-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
+        "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
+        "GOOGLE_WORKSPACE_SERVICES": "gmail,calendar"
+      }
+    }
+  }
+}

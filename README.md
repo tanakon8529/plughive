@@ -71,30 +71,35 @@ Add its name to `enabled_plugs:` in `config/plughive.yaml`, restart. To disable,
 
 The shipped plug is [`discord`](src/plughive/plugs/discord/) — the chat bot + the 2-hour brief.
 
-## Gmail + Calendar
+## Gmail + Calendar (optional add-on)
 
-Mail/Calendar in the brief come from a **local Google MCP server** ([`@dguido/google-workspace-mcp`](https://github.com/dguido/google-workspace-mcp)) that the brain launches on demand via `npx` — no Docker, nothing running in the background. It's pre-wired in `config/mcp.json` (server `google` → tools `mcp__google__*`). You only need your own Google OAuth client and a one-time authorization:
+**By default the bot needs no Google setup at all** — chat + news work out of the box. Mail/Calendar in the brief are opt-in.
 
-**1. Create a Google OAuth client (once, ~3 min)**
+> **Why it isn't one-click:** a *background* bot runs the Claude CLI headless (`claude -p`), and Claude's own claude.ai Gmail/Calendar connectors **only work in an interactive `claude` session** — a headless process can't see them (and Google's endpoint refuses `claude mcp login`). So any always-on bot that reads your inbox needs its **own** Google credential. That's a Google/Claude-Code constraint, not a plughive one. If you don't need mail/calendar, skip this entirely.
+
+To enable it, the brief reads mail/calendar via a **local Google MCP server** ([`@dguido/google-workspace-mcp`](https://github.com/dguido/google-workspace-mcp)) the brain launches on demand via `npx` (no Docker, nothing in the background):
+
+**1. Turn the add-on on**
+```bash
+cp config/mcp.local.example.json config/mcp.local.json   # gitignored; overrides the empty default
+```
+
+**2. Create a Google OAuth client (once, ~3 min)**
 - Enable the Gmail + Calendar APIs: [one-click link](https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com,calendar-json.googleapis.com)
 - **APIs & Services → Credentials → Create Credentials → OAuth client ID → Application type: Desktop app**. Copy the **Client ID** and **Client secret**.
-- **OAuth consent screen**: user type *External*, add the scopes `gmail.modify`, `gmail.labels`, `calendar`, and add your own Google account under **Test users**.
+- **OAuth consent screen**: user type *External*, add the scopes `gmail.modify`, `gmail.labels`, `calendar`, and add your own Google account under **Test users**. (Prefer read-only? use `gmail.readonly` + `calendar.readonly`.)
 
-**2. Put the credentials in `.env`**
+**3. Put the credentials in `.env`**
 ```
 GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxxxx
 ```
 
-**3. Authorize once (opens a browser)**
+**4. Authorize once (opens a browser)**
 ```bash
-claude -p "List my 3 most recent emails." --mcp-config config/mcp.json --allowedTools "mcp__google__*"
+claude -p "List my 3 most recent emails." --mcp-config config/mcp.local.json --allowedTools "mcp__google__*"
 ```
-Approve in the browser — the server saves a token to `~/.config/google-workspace-mcp/tokens.json` (0600). After that the always-on bot uses that token headlessly; the brief includes mail + calendar.
-
-> Prefer read-only? Swap the scopes to `gmail.readonly` + `calendar.readonly` on the consent screen.
-
-Without any of this the bot still works — the brief just does **news only** (mail/calendar are skipped, not errored). News needs no setup; it uses the Claude CLI's built-in **WebSearch**.
+Approve in the browser — a token is saved to `~/.config/google-workspace-mcp/tokens.json` (0600). After that the always-on bot uses it headlessly and the brief includes mail + calendar.
 
 ## Configuration
 
@@ -106,7 +111,8 @@ The framework code is generic — **all personality lives in config**, so you ne
 | `config/plughive.yaml` | shared, generic defaults: `bot_name`, `boss_nickname`, `persona_file`, models, brief cadence, quiet hours, enabled plugs |
 | `config/plughive.local.yaml` | **your** personal overrides (gitignored) — deep-merges over the shared config. Copy from `plughive.local.example.yaml` |
 | `personas/*.md` | the voice. Ships `assistant.md` (neutral default) and `rochana.md` (เก้า, Thai example). Point `persona_file` at any of them |
-| `config/mcp.json` | MCP servers handed to the brain |
+| `config/mcp.json` | MCP servers for the brain (empty by default) |
+| `config/mcp.local.json` | **your** MCP override (gitignored) — enables the optional Gmail/Calendar add-on. Copy from `mcp.local.example.json` |
 
 **Make it yours without touching the shared config or any code:**
 ```bash
